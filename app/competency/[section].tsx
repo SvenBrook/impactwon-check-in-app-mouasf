@@ -69,6 +69,34 @@ export default function CompetencyScreen() {
     }
   };
 
+  // Helper function to get the background color for each level
+  const getLevelColor = (level: number): string => {
+    switch (level) {
+      case 1:
+        return colors.level1; // Sky Blue
+      case 2:
+        return colors.level2; // Insight Teal
+      case 3:
+        return colors.level3; // Reliable Lilac
+      case 4:
+        return colors.level4; // Focus Blue (50%)
+      case 5:
+        return colors.level5; // Beacon Orange
+      default:
+        return colors.skyBlue;
+    }
+  };
+
+  // Helper function to get text color for each level (for better contrast)
+  const getLevelTextColor = (level: number): string => {
+    // For darker backgrounds (level 4 and 5), use white text
+    if (level === 4 || level === 5) {
+      return colors.white;
+    }
+    // For lighter backgrounds, use heading color
+    return colors.heading;
+  };
+
   const progress = ((sectionIndex + 1) / competencies.length) * 100;
 
   return (
@@ -115,12 +143,15 @@ export default function CompetencyScreen() {
                 {Object.entries(question.levels).map(([level, description]) => {
                   const levelNum = parseInt(level);
                   const isSelected = localResponses[question.id] === levelNum;
+                  const levelColor = getLevelColor(levelNum);
+                  const textColor = getLevelTextColor(levelNum);
                   
                   return (
                     <TouchableOpacity
                       key={level}
                       style={[
                         styles.levelCard,
+                        { backgroundColor: levelColor },
                         isSelected && styles.levelCardSelected,
                       ]}
                       onPress={() => handleRatingChange(question.id, levelNum)}
@@ -130,10 +161,11 @@ export default function CompetencyScreen() {
                         <View style={[
                           styles.levelBadge,
                           isSelected && styles.levelBadgeSelected,
+                          { backgroundColor: isSelected ? colors.primaryButton : colors.white },
                         ]}>
                           <Text style={[
                             styles.levelBadgeText,
-                            isSelected && styles.levelBadgeTextSelected,
+                            { color: isSelected ? colors.white : textColor },
                           ]}>
                             Level {level}
                           </Text>
@@ -151,6 +183,7 @@ export default function CompetencyScreen() {
                       </View>
                       <Text style={[
                         styles.levelDescription,
+                        { color: textColor },
                         isSelected && styles.levelDescriptionSelected,
                       ]}>
                         {description}
@@ -252,17 +285,15 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   levelCard: {
-    backgroundColor: colors.skyBlue,
     borderRadius: 16,
     padding: 16,
     borderWidth: 2,
     borderColor: 'transparent',
   },
   levelCardSelected: {
-    backgroundColor: colors.white,
     borderColor: colors.primaryButton,
-    boxShadow: '0px 2px 8px rgba(13, 149, 255, 0.15)',
-    elevation: 3,
+    boxShadow: '0px 2px 8px rgba(13, 149, 255, 0.25)',
+    elevation: 4,
   },
   levelHeader: {
     flexDirection: 'row',
@@ -271,7 +302,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   levelBadge: {
-    backgroundColor: colors.white,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,
@@ -282,21 +312,15 @@ const styles = StyleSheet.create({
   levelBadgeText: {
     fontSize: 13,
     fontWeight: '700',
-    color: colors.primaryButton,
-  },
-  levelBadgeTextSelected: {
-    color: colors.white,
   },
   checkmarkContainer: {
     marginLeft: 8,
   },
   levelDescription: {
     fontSize: 14,
-    color: colors.text,
     lineHeight: 20,
   },
   levelDescriptionSelected: {
-    color: colors.heading,
     fontWeight: '500',
   },
   button: {
