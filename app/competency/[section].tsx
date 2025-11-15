@@ -79,9 +79,9 @@ export default function CompetencyScreen() {
       case 3:
         return colors.level3; // Reliable Lilac
       case 4:
-        return colors.level4; // Focus Blue (50%)
+        return colors.level4; // Beacon Orange
       case 5:
-        return colors.level5; // Beacon Orange
+        return colors.level5; // Clarity Blue
       default:
         return colors.skyBlue;
     }
@@ -94,6 +94,18 @@ export default function CompetencyScreen() {
       return colors.white;
     }
     // For lighter backgrounds, use heading color
+    return colors.heading;
+  };
+
+  // Helper function to get badge text color
+  const getLevelBadgeTextColor = (level: number, isSelected: boolean): string => {
+    if (isSelected) {
+      return colors.white;
+    }
+    // For level 4 and 5, use the card background color for contrast
+    if (level === 4 || level === 5) {
+      return colors.heading;
+    }
     return colors.heading;
   };
 
@@ -145,6 +157,7 @@ export default function CompetencyScreen() {
                   const isSelected = localResponses[question.id] === levelNum;
                   const levelColor = getLevelColor(levelNum);
                   const textColor = getLevelTextColor(levelNum);
+                  const badgeTextColor = getLevelBadgeTextColor(levelNum, isSelected);
                   
                   return (
                     <TouchableOpacity
@@ -165,7 +178,7 @@ export default function CompetencyScreen() {
                         ]}>
                           <Text style={[
                             styles.levelBadgeText,
-                            { color: isSelected ? colors.white : textColor },
+                            { color: badgeTextColor },
                           ]}>
                             Level {level}
                           </Text>
