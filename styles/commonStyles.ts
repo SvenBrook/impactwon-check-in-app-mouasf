@@ -17,8 +17,8 @@ export const colors = {
   level1: '#C1E6FF',            // Sky Blue
   level2: '#A6E0C5',            // Insight Teal
   level3: '#E3D8FF',            // Reliable Lilac
-  level4: 'rgba(31, 43, 115, 0.5)', // Focus Blue (50%)
-  level5: '#FF810C',            // Beacon Orange
+  level4: '#FF810C',            // Beacon Orange
+  level5: '#0D95FF',            // Clarity Blue
 };
 
 export const buttonStyles = StyleSheet.create({
