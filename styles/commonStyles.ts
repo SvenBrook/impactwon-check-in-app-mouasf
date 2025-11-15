@@ -1,26 +1,46 @@
+
 import { StyleSheet, ViewStyle, TextStyle } from 'react-native';
 
 export const colors = {
-  primary: '#162456',    // Material Blue
-  secondary: '#193cb8',  // Darker Blue
-  accent: '#64B5F6',     // Light Blue
-  background: '#101824',  // Keeping dark background
-  backgroundAlt: '#162133',  // Keeping dark background
-  text: '#e3e3e3',       // Keeping light text
-  grey: '#90CAF9',       // Light Blue Grey
-  card: '#193cb8',       // Keeping dark card background
+  background: '#FFFDF9',        // Off White
+  heading: '#1F2B73',           // Focus Blue
+  primaryText: '#1F2B73',       // Focus Blue
+  primaryButton: '#0D95FF',     // Clarity Blue
+  positiveTags: '#A6E0C5',      // Insight Teal
+  attentionTags: '#FF810C',     // Beacon Orange
+  skyBlue: '#C1E6FF',           // Sky Blue
+  lilac: '#E3D8FF',             // Reliable Lilac
+  text: '#1F2B73',              // Focus Blue for text
+  white: '#FFFFFF',
+  grey: '#666666',
 };
 
 export const buttonStyles = StyleSheet.create({
-  instructionsButton: {
-    backgroundColor: colors.primary,
-    alignSelf: 'center',
-    width: '100%',
+  primaryButton: {
+    backgroundColor: colors.primaryButton,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  backButton: {
-    backgroundColor: colors.backgroundAlt,
-    alignSelf: 'center',
-    width: '100%',
+  primaryButtonText: {
+    color: colors.white,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  secondaryButton: {
+    backgroundColor: colors.skyBlue,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  secondaryButtonText: {
+    color: colors.heading,
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 
@@ -35,8 +55,6 @@ export const commonStyles = StyleSheet.create({
     backgroundColor: colors.background,
     width: '100%',
     height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   content: {
     flex: 1,
@@ -46,19 +64,24 @@ export const commonStyles = StyleSheet.create({
     width: '100%',
   },
   title: {
-    fontSize: 24,
-    fontWeight: '800',
+    fontSize: 28,
+    fontWeight: '700',
     textAlign: 'center',
-    color: colors.text,
-    marginBottom: 10
+    color: colors.heading,
+    marginBottom: 12,
+  },
+  subtitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.heading,
+    marginBottom: 8,
   },
   text: {
     fontSize: 16,
-    fontWeight: '500',
-    color: colors.text,
+    fontWeight: '400',
+    color: colors.primaryText,
     marginBottom: 8,
     lineHeight: 24,
-    textAlign: 'center',
   },
   section: {
     width: '100%',
@@ -71,19 +94,46 @@ export const commonStyles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   card: {
-    backgroundColor: colors.backgroundAlt,
-    borderColor: colors.grey,
-    borderWidth: 1,
-    borderRadius: 10,
-    padding: 10,
+    backgroundColor: colors.white,
+    borderRadius: 25,
+    padding: 20,
     marginVertical: 8,
     width: '100%',
-    boxShadow: '0px 2px 3px rgba(0, 0, 0, 0.1)',
+    boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.05)',
+    elevation: 1,
+  },
+  panel: {
+    backgroundColor: colors.skyBlue,
+    borderRadius: 25,
+    padding: 20,
+    marginVertical: 8,
+    width: '100%',
+  },
+  panelLilac: {
+    backgroundColor: colors.lilac,
+    borderRadius: 25,
+    padding: 20,
+    marginVertical: 8,
+    width: '100%',
+  },
+  topBar: {
+    backgroundColor: colors.white,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.08)',
     elevation: 2,
   },
-  icon: {
-    width: 60,
-    height: 60,
-    tintColor: "white",
+  input: {
+    backgroundColor: colors.white,
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    color: colors.primaryText,
+    borderWidth: 1,
+    borderColor: colors.skyBlue,
+    marginBottom: 12,
   },
 });
