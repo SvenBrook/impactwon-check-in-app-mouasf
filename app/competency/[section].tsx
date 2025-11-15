@@ -13,7 +13,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { commonStyles, colors, buttonStyles } from '@/styles/commonStyles';
 import { useAssessment } from '@/contexts/AssessmentContext';
 import { competencies } from '@/data/competencies';
-import RatingScale from '@/components/RatingScale';
 import { IconSymbol } from '@/components/IconSymbol';
 
 export default function CompetencyScreen() {
@@ -101,32 +100,65 @@ export default function CompetencyScreen() {
         <View style={styles.content}>
           <Text style={commonStyles.title}>{competency.name}</Text>
           <Text style={[commonStyles.text, styles.instruction]}>
-            Please rate your level based on the descriptions below. Choose the level that is the closest match.
+            Please rate your level based on the descriptions below. Tap the level statement that is the closest match to your current level.
           </Text>
 
           {competency.questions.map((question, index) => (
             <View key={question.id} style={commonStyles.card}>
               <Text style={styles.questionNumber}>Question {index + 1}: {question.text}</Text>
               <Text style={styles.questionPrompt}>
-                Please rate your level of {question.text.toLowerCase()} based on the following descriptions:
+                Please rate your level of {question.text.toLowerCase()} by selecting the description that best matches:
               </Text>
               
-              {/* Display all level descriptions */}
+              {/* Display all level descriptions as clickable cards */}
               <View style={styles.levelsContainer}>
-                {Object.entries(question.levels).map(([level, description]) => (
-                  <View key={level} style={styles.levelItem}>
-                    <Text style={styles.levelLabel}>Level {level}:</Text>
-                    <Text style={styles.levelDescription}>{description}</Text>
-                  </View>
-                ))}
+                {Object.entries(question.levels).map(([level, description]) => {
+                  const levelNum = parseInt(level);
+                  const isSelected = localResponses[question.id] === levelNum;
+                  
+                  return (
+                    <TouchableOpacity
+                      key={level}
+                      style={[
+                        styles.levelCard,
+                        isSelected && styles.levelCardSelected,
+                      ]}
+                      onPress={() => handleRatingChange(question.id, levelNum)}
+                      activeOpacity={0.7}
+                    >
+                      <View style={styles.levelHeader}>
+                        <View style={[
+                          styles.levelBadge,
+                          isSelected && styles.levelBadgeSelected,
+                        ]}>
+                          <Text style={[
+                            styles.levelBadgeText,
+                            isSelected && styles.levelBadgeTextSelected,
+                          ]}>
+                            Level {level}
+                          </Text>
+                        </View>
+                        {isSelected && (
+                          <View style={styles.checkmarkContainer}>
+                            <IconSymbol
+                              ios_icon_name="checkmark.circle.fill"
+                              android_material_icon_name="check_circle"
+                              size={24}
+                              color={colors.primaryButton}
+                            />
+                          </View>
+                        )}
+                      </View>
+                      <Text style={[
+                        styles.levelDescription,
+                        isSelected && styles.levelDescriptionSelected,
+                      ]}>
+                        {description}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
-
-              <Text style={styles.ratingPrompt}>Select your level:</Text>
-              <RatingScale
-                scale={question.scale}
-                value={localResponses[question.id] || null}
-                onChange={(rating) => handleRatingChange(question.id, rating)}
-              />
             </View>
           ))}
 
@@ -217,29 +249,55 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   levelsContainer: {
-    marginBottom: 20,
+    gap: 12,
   },
-  levelItem: {
-    marginBottom: 12,
-    paddingLeft: 8,
+  levelCard: {
+    backgroundColor: colors.skyBlue,
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 2,
+    borderColor: 'transparent',
   },
-  levelLabel: {
-    fontSize: 14,
-    fontWeight: '600',
+  levelCardSelected: {
+    backgroundColor: colors.white,
+    borderColor: colors.primaryButton,
+    boxShadow: '0px 2px 8px rgba(13, 149, 255, 0.15)',
+    elevation: 3,
+  },
+  levelHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  levelBadge: {
+    backgroundColor: colors.white,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  levelBadgeSelected: {
+    backgroundColor: colors.primaryButton,
+  },
+  levelBadgeText: {
+    fontSize: 13,
+    fontWeight: '700',
     color: colors.primaryButton,
-    marginBottom: 4,
+  },
+  levelBadgeTextSelected: {
+    color: colors.white,
+  },
+  checkmarkContainer: {
+    marginLeft: 8,
   },
   levelDescription: {
     fontSize: 14,
     color: colors.text,
     lineHeight: 20,
-    paddingLeft: 8,
   },
-  ratingPrompt: {
-    fontSize: 14,
-    fontWeight: '600',
+  levelDescriptionSelected: {
     color: colors.heading,
-    marginBottom: 8,
+    fontWeight: '500',
   },
   button: {
     width: '100%',
