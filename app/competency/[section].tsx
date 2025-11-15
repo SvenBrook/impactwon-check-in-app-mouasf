@@ -101,13 +101,27 @@ export default function CompetencyScreen() {
         <View style={styles.content}>
           <Text style={commonStyles.title}>{competency.name}</Text>
           <Text style={[commonStyles.text, styles.instruction]}>
-            Rate yourself on each statement from 1 (lowest) to {competency.questions[0].scale} (highest)
+            Please rate your level based on the descriptions below. Choose the level that is the closest match.
           </Text>
 
           {competency.questions.map((question, index) => (
             <View key={question.id} style={commonStyles.card}>
-              <Text style={styles.questionNumber}>Question {index + 1}</Text>
-              <Text style={styles.questionText}>{question.text}</Text>
+              <Text style={styles.questionNumber}>Question {index + 1}: {question.text}</Text>
+              <Text style={styles.questionPrompt}>
+                Please rate your level of {question.text.toLowerCase()} based on the following descriptions:
+              </Text>
+              
+              {/* Display all level descriptions */}
+              <View style={styles.levelsContainer}>
+                {Object.entries(question.levels).map(([level, description]) => (
+                  <View key={level} style={styles.levelItem}>
+                    <Text style={styles.levelLabel}>Level {level}:</Text>
+                    <Text style={styles.levelDescription}>{description}</Text>
+                  </View>
+                ))}
+              </View>
+
+              <Text style={styles.ratingPrompt}>Select your level:</Text>
               <RatingScale
                 scale={question.scale}
                 value={localResponses[question.id] || null}
@@ -191,18 +205,41 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   questionNumber: {
-    fontSize: 12,
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.heading,
+    marginBottom: 12,
+  },
+  questionPrompt: {
+    fontSize: 14,
+    color: colors.text,
+    marginBottom: 16,
+    lineHeight: 20,
+  },
+  levelsContainer: {
+    marginBottom: 20,
+  },
+  levelItem: {
+    marginBottom: 12,
+    paddingLeft: 8,
+  },
+  levelLabel: {
+    fontSize: 14,
     fontWeight: '600',
     color: colors.primaryButton,
-    marginBottom: 8,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    marginBottom: 4,
   },
-  questionText: {
-    fontSize: 16,
-    fontWeight: '500',
+  levelDescription: {
+    fontSize: 14,
+    color: colors.text,
+    lineHeight: 20,
+    paddingLeft: 8,
+  },
+  ratingPrompt: {
+    fontSize: 14,
+    fontWeight: '600',
     color: colors.heading,
-    lineHeight: 24,
+    marginBottom: 8,
   },
   button: {
     width: '100%',

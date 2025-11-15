@@ -10,6 +10,9 @@ export interface CompetencyQuestion {
   id: string;
   text: string;
   scale: 3 | 5;
+  levels: {
+    [key: number]: string;
+  };
 }
 
 export interface Competency {
