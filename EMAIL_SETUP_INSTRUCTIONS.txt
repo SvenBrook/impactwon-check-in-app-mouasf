@@ -1,0 +1,29 @@
+
+================================================================================
+EMAIL FUNCTIONALITY SETUP REQUIRED
+================================================================================
+
+To send assessment results via email, you need to enable Supabase:
+
+QUICK START:
+1. Press the Supabase button in Natively
+2. Connect to your Supabase project (create one at supabase.com if needed)
+3. Follow the detailed setup guide in SUPABASE_EMAIL_SETUP.md
+
+WHAT YOU'LL SET UP:
+- Database table to store assessments
+- Edge Function to send emails with spider graph
+- Email service integration (Resend, SendGrid, or Mailgun)
+
+CURRENT STATUS:
+✗ Supabase not configured
+✗ Email functionality disabled
+
+Once configured, the app will:
+✓ Save assessment results to database
+✓ Email results to participant
+✓ CC sven@impactwon.com
+✓ Include spider graph image
+
+See SUPABASE_EMAIL_SETUP.md for complete instructions.
+================================================================================
