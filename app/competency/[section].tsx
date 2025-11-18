@@ -33,7 +33,7 @@ export default function CompetencyScreen() {
       }
     });
     setLocalResponses(existing);
-  }, []);
+  }, [competency.questions, responses]);
 
   const handleRatingChange = (questionId: string, rating: number) => {
     setLocalResponses((prev) => ({ ...prev, [questionId]: rating }));
