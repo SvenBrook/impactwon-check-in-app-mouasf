@@ -7,6 +7,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  ActivityIndicator,
   Platform,
 } from 'react-native';
 import { router } from 'expo-router';
@@ -18,10 +19,12 @@ import RatingScale from '@/components/RatingScale';
 import { useAssessment } from '@/contexts/AssessmentContext';
 import { competencies, benchmarkProfile } from '@/data/competencies';
 import { calculateAllAverages, getCompetencyStatus, getStatusColor } from '@/utils/assessmentUtils';
+import { sendAssessmentEmail, saveAssessmentToDatabase } from '@/utils/emailService';
 
 export default function ResultsScreen() {
   const { responses, experienceRating, setExperienceRating, userInfo, resetAssessment } = useAssessment();
   const [showExperienceRating, setShowExperienceRating] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const competencyAverages = calculateAllAverages(competencies, responses);
 
@@ -46,21 +49,101 @@ export default function ResultsScreen() {
       return;
     }
 
-    // Here you would normally save to Supabase and send email
-    // For now, we'll show a success message
-    Alert.alert(
-      'Assessment Complete',
-      'Thank you for completing the assessment! Your results have been saved and will be emailed to you shortly.',
-      [
-        {
-          text: 'Start New Assessment',
-          onPress: () => {
-            resetAssessment();
-            router.replace('/welcome');
+    if (!userInfo) {
+      Alert.alert('Error', 'User information is missing');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Save assessment to database
+      console.log('Saving assessment to database...');
+      const saveResult = await saveAssessmentToDatabase({
+        userInfo,
+        competencyAverages,
+        benchmarkProfile,
+        experienceRating,
+        chartImageBase64: null, // We'll add chart capture later if needed
+      });
+
+      if (!saveResult.success) {
+        console.error('Failed to save assessment:', saveResult.error);
+        Alert.alert(
+          'Warning',
+          `Assessment could not be saved: ${saveResult.error}. Would you still like to send the email?`,
+          [
+            { text: 'Cancel', style: 'cancel', onPress: () => setIsSubmitting(false) },
+            { text: 'Send Email', onPress: () => sendEmail() },
+          ]
+        );
+        return;
+      }
+
+      console.log('Assessment saved successfully');
+      await sendEmail();
+    } catch (error: any) {
+      console.error('Error submitting assessment:', error);
+      setIsSubmitting(false);
+      Alert.alert('Error', `An unexpected error occurred: ${error.message}`);
+    }
+  };
+
+  const sendEmail = async () => {
+    if (!userInfo) return;
+
+    try {
+      console.log('Sending assessment email...');
+      const emailResult = await sendAssessmentEmail({
+        userInfo,
+        competencyAverages,
+        benchmarkProfile,
+        experienceRating: experienceRating!,
+        chartImageBase64: null, // We'll add chart capture later if needed
+      });
+
+      setIsSubmitting(false);
+
+      if (!emailResult.success) {
+        console.error('Failed to send email:', emailResult.error);
+        Alert.alert(
+          'Email Error',
+          `Your assessment was saved, but the email could not be sent: ${emailResult.error}`,
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                resetAssessment();
+                router.replace('/welcome');
+              },
+            },
+          ]
+        );
+        return;
+      }
+
+      console.log('Email sent successfully');
+      const recipients = emailResult.recipients || [userInfo.email, 'sven@impactwon.com'];
+      const recipientList = recipients.join(', ');
+      
+      Alert.alert(
+        'Assessment Complete',
+        `Thank you for completing the assessment!\n\nYour results have been saved and emailed to:\n${recipientList}`,
+        [
+          {
+            text: 'Start New Assessment',
+            onPress: () => {
+              resetAssessment();
+              router.replace('/welcome');
+            },
           },
-        },
-      ]
-    );
+        ]
+      );
+    } catch (error: any) {
+      console.error('Error sending email:', error);
+      setIsSubmitting(false);
+      Alert.alert('Error', `Failed to send email: ${error.message}`);
+    }
   };
 
   return (
@@ -139,16 +222,30 @@ export default function ResultsScreen() {
           )}
 
           <TouchableOpacity
-            style={[buttonStyles.primaryButton, styles.button]}
+            style={[
+              buttonStyles.primaryButton,
+              styles.button,
+              isSubmitting && styles.buttonDisabled,
+            ]}
             onPress={handleSubmit}
+            disabled={isSubmitting}
           >
-            <Text style={buttonStyles.primaryButtonText}>
-              Submit and Email My Report
-            </Text>
+            {isSubmitting ? (
+              <View style={styles.buttonContent}>
+                <ActivityIndicator color="#FFFDF9" size="small" />
+                <Text style={[buttonStyles.primaryButtonText, styles.buttonTextWithLoader]}>
+                  Sending...
+                </Text>
+              </View>
+            ) : (
+              <Text style={buttonStyles.primaryButtonText}>
+                Submit and Email My Report
+              </Text>
+            )}
           </TouchableOpacity>
 
           <Text style={styles.disclaimer}>
-            Your results will be emailed to {userInfo?.email}
+            Your results will be emailed to {userInfo?.email} and Sven (sven@impactwon.com)
           </Text>
         </View>
       </ScrollView>
@@ -239,6 +336,17 @@ const styles = StyleSheet.create({
   button: {
     width: '100%',
     marginTop: 8,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonTextWithLoader: {
+    marginLeft: 10,
   },
   disclaimer: {
     fontSize: 12,

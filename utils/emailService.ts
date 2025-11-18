@@ -10,20 +10,23 @@ interface EmailData {
   chartImageBase64: string | null;
 }
 
-export async function sendAssessmentEmail(data: EmailData): Promise<{ success: boolean; error?: string }> {
+export async function sendAssessmentEmail(data: EmailData): Promise<{ success: boolean; error?: string; recipients?: string[] }> {
   if (!isSupabaseConfigured()) {
     console.log('Supabase is not configured. Email not sent.');
     return {
       success: false,
-      error: 'Supabase is not configured. Please enable Supabase to send emails.',
+      error: 'Supabase is not configured. Please add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY to your environment variables.',
     };
   }
 
   try {
+    console.log('Invoking send-assessment-email edge function...');
+    console.log('Sending email to participant:', data.userInfo.email);
+    console.log('Sending email to Sven: sven@impactwon.com');
+    
     const { data: result, error } = await supabase.functions.invoke('send-assessment-email', {
       body: {
         userEmail: data.userInfo.email,
-        ccEmail: 'sven@impactwon.com',
         firstName: data.userInfo.firstName,
         surname: data.userInfo.surname,
         competencyAverages: data.competencyAverages,
@@ -42,7 +45,10 @@ export async function sendAssessmentEmail(data: EmailData): Promise<{ success: b
     }
 
     console.log('Email sent successfully:', result);
-    return { success: true };
+    return { 
+      success: true,
+      recipients: result?.recipients || [data.userInfo.email, 'sven@impactwon.com']
+    };
   } catch (error: any) {
     console.error('Exception sending email:', error);
     return {
@@ -57,11 +63,12 @@ export async function saveAssessmentToDatabase(data: EmailData): Promise<{ succe
     console.log('Supabase is not configured. Assessment not saved.');
     return {
       success: false,
-      error: 'Supabase is not configured.',
+      error: 'Supabase is not configured. Please add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY to your environment variables.',
     };
   }
 
   try {
+    console.log('Saving assessment to database...');
     const assessmentData = {
       first_name: data.userInfo.firstName,
       surname: data.userInfo.surname,
@@ -79,7 +86,8 @@ export async function saveAssessmentToDatabase(data: EmailData): Promise<{ succe
 
     const { data: result, error } = await supabase
       .from('assessments')
-      .insert([assessmentData]);
+      .insert([assessmentData])
+      .select();
 
     if (error) {
       console.error('Error saving assessment:', error);
